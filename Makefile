@@ -1,10 +1,10 @@
-PROGRAM = pacman
+PROGRAM = mario
 CC = gcc
 CFLAGS = -g -Wall
 LDFLAGS = -lGL -lGLU -lglut
 
 $(PROGRAM): main.o
-		$(CC) -o $(PROGRAM) main.o $(LDFLAGS)
+	$(CC) -o $(PROGRAM) main.o $(LDFLAGS)
 
 .PHONY: clean dist
 
