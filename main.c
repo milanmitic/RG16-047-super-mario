@@ -1,18 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glut.h>
-
-
-
+#define COUNT 50
+#define TIMER_ID 1
+#define TIMER_INTERVAL 20
+#define SPEED 0.2
 /* deklaracija callback funkcija*/
 static void on_display();
 static void on_keyboard(unsigned char key,int x,int y);
 static void on_reshape(int w,int h);
+static void on_timer();
 
 /*deklaracije ostalih funkcija*/
 static void draw_mario();
 static void lighting();
+static void draw_base();
 
+/*dekleracije globalnih promenljivih*/
+static int in_air=0;
+static float y_coor=0; /*y koordinata maria*/
+static float speed=SPEED; /*brzina skoka*/
 /* komponente za igraca */
 GLfloat ambient_legs[] = {0,0,1,1};
 GLfloat diffuse_legs[] = {0,0,1,1};
@@ -26,6 +33,9 @@ GLfloat diffuse_arms[] = {1,1,0,1};
 GLfloat ambient_head[] = {0,0.5,0,1};
 GLfloat diffuse_head[] = {0,0.5,0,1};
 
+/*komponente za podlogu*/
+GLfloat ambient_base[]={0.7,0.2,0.2,1};
+GLfloat diffuse_base[]={0.7,0.2,0.2,1};
 
 int main(int argc, char **argv){
 	/* incijalizacija GLUT-a*/
@@ -66,6 +76,13 @@ static void on_keyboard(unsigned char key,int x,int y){
 		/*izlazimo iz programa-esc dugme*/
 		exit(0);
 	}
+	if(key==' '){
+		if(!in_air){
+			glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);
+			in_air=1;
+		}
+	}
+
 	
 }
 static void lighting(){
@@ -80,7 +97,7 @@ static void lighting(){
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 
-	GLfloat shiness = 30;
+	GLfloat shiness = 20;
 	glMaterialf(GL_FRONT, GL_SHININESS, shiness);
 
 	/* pozicija izvora svetlosti */
@@ -97,13 +114,17 @@ static void on_display(){
         gluLookAt(0,1,50,0,0,0,0,1,0);
 	
 	/* poziva se funkcija koja iscrtava marija*/
-	draw_mario();
-	
+	glPushMatrix();
+		glTranslatef(0,y_coor,0);
+		draw_mario();
+	glPopMatrix();
+	/*poziva se funkcija koja iscrtava podlogu*/
+	draw_base();
 	glutSwapBuffers();
 }    
 
 static void draw_mario(){
-	glTranslatef(-20,-10,0);
+	glTranslatef(-20,-20,0);
 	/*iscrtavamo noge*/
 	glPushMatrix();
 		glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_legs);
@@ -161,5 +182,46 @@ static void draw_mario(){
 		glutSolidCube(1);
 	glPopMatrix();
 }
+static void draw_base(){
+	glTranslatef(0,-20,0);
+	int i;
+	for(i=0;i<COUNT;i++){
+		glPushMatrix();
+			glMaterialfv(GL_FRONT,GL_AMBIENT,ambient_base);
+			glMaterialfv(GL_FRONT,GL_DIFFUSE,diffuse_base);
+			glTranslatef(i*2,-2,0);
+			glutSolidCube(2);
+			glTranslatef(i*2,-2,0);
+			glutSolidCube(2);
+		glPopMatrix();
+		glPushMatrix();
+			glMaterialfv(GL_FRONT,GL_AMBIENT,ambient_base);
+			glMaterialfv(GL_FRONT,GL_DIFFUSE,diffuse_base);
+			glTranslatef(-i*2,-2,0);
+			glutSolidCube(2);
+			glTranslatef(-i*2,-2,0);
+			glutSolidCube(2);
+		glPopMatrix();
+	}
 
+}
+
+static void on_timer(int value){
+		/*proveravamo da li dolazi sa tajmera za skok*/
+		if(value!=TIMER_ID){
+			exit(0);
+		}	
+		y_coor+=speed;
+		if(y_coor>=15){
+			speed=-speed*2;
+		}
+		if(y_coor<=0){
+			in_air=0;
+			speed=SPEED;
+			y_coor=0;
+		}
+		glutPostRedisplay();
+		if(in_air)
+           		 glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
+}        
 
