@@ -1,24 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glut.h>
-#define COUNT 50
+#define COUNT 100
 #define TIMER_ID 1
+
 #define TIMER_INTERVAL 20
 #define SPEED 0.2
+#define NUM_IMP 3
 /* deklaracija callback funkcija*/
 static void on_display();
 static void on_keyboard(unsigned char key,int x,int y);
-static void on_reshape(int w,int h);
 static void on_timer();
+static void on_reshape(int w,int h);
+
 
 /*deklaracije ostalih funkcija*/
 static void draw_mario();
 static void lighting();
 static void draw_base();
+static void draw_impediments();
+static void draw_impediments2();
 
 /*dekleracije globalnih promenljivih*/
-static int in_air=0;
-static float y_coor=0; /*y koordinata maria*/
+static int in_air = 0;
+static float y_coor = 0; /*y koordinata marija*/
+static float x_coor = 0; /* x koordinata marija*/
 static float speed=SPEED; /*brzina skoka*/
 /* komponente za igraca */
 GLfloat ambient_legs[] = {0,0,1,1};
@@ -72,15 +78,23 @@ static void on_reshape(int w,int h){
 	gluPerspective(60,w*1.0/h,1,200);
 }
 static void on_keyboard(unsigned char key,int x,int y){
-	if(key==27){
+	if(key == 27){
 		/*izlazimo iz programa-esc dugme*/
 		exit(0);
 	}
-	if(key==' '){
+	else if(key == ' '){
 		if(!in_air){
 			glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);
 			in_air=1;
 		}
+	}
+	else if (key == 'd' || key == 'D'){
+		x_coor += SPEED + 0.2;
+		glutPostRedisplay();
+	}
+	else if (key == 'a' || key == 'A'){
+		x_coor -= SPEED + 0.2;
+		glutPostRedisplay();
 	}
 
 	
@@ -119,7 +133,29 @@ static void on_display(){
 		draw_mario();
 	glPopMatrix();
 	/*poziva se funkcija koja iscrtava podlogu*/
-	draw_base();
+	glPushMatrix();
+		glTranslatef(-x_coor, -20 , 0);
+		draw_base();
+	glPopMatrix();
+	/*poziva se funkcija koja iscrtava zelene prepreke na zemlji */
+	glTranslatef(5,7,0);
+	glPushMatrix();
+		glTranslatef(-x_coor,-20,0);
+		glTranslatef(15,0,0);
+		draw_impediments();
+		glTranslatef(30,0,0);
+		draw_impediments();
+		glTranslatef(40,0,0);
+	 	draw_impediments();
+	glPopMatrix();
+	/* poziva se funkcija koja iscrtava cigle, to jest prepreke u vazduhu*/
+	glPushMatrix();
+		glTranslatef(10 - x_coor, -8, 0);
+		glTranslatef(15, 0, 0);
+		draw_impediments2();
+		glTranslatef(10, 0, 0);
+		draw_impediments2();
+	glPopMatrix();
 	glutSwapBuffers();
 }    
 
@@ -183,7 +219,7 @@ static void draw_mario(){
 	glPopMatrix();
 }
 static void draw_base(){
-	glTranslatef(0,-20,0);
+	//glTranslatef(0,-20,0);
 	int i;
 	for(i=0;i<COUNT;i++){
 		glPushMatrix();
@@ -206,13 +242,47 @@ static void draw_base(){
 
 }
 
+static void draw_impediments(){
+	GLUquadric* quadric = gluNewQuadric();
+   	gluQuadricDrawStyle(quadric, GLU_FILL);
+    	
+	GLfloat ambient_imp2[]={0,0.7,0,1};
+	GLfloat diffuse_imp2[]={0,0.7,0,1};
+	
+	glPushMatrix();
+		glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_imp2);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_imp2);
+		glRotatef(90,1,0,0);
+		gluCylinder(quadric,1,1,5,32,8);
+	glPopMatrix();
+	
+	glPushMatrix();
+        	glTranslatef(0,0.5,0); 
+        	glRotatef(90,1,0,0);
+        	gluCylinder(quadric,2.2,2.2,8,32,8);
+        	gluDisk(quadric,0,1,15,15);
+    	glPopMatrix();
+
+}
+
+static void draw_impediments2(){
+	
+	GLfloat ambient_imp1[]={0.6,0.1,0,1};
+	GLfloat diffuse_imp1[]={0.6,0.1,0,1};
+		
+	glMaterialfv(GL_FRONT,GL_AMBIENT,ambient_imp1);
+	glMaterialfv(GL_FRONT,GL_DIFFUSE,diffuse_imp1);
+	glutSolidCube(3);
+		
+}
+
 static void on_timer(int value){
 		/*proveravamo da li dolazi sa tajmera za skok*/
 		if(value!=TIMER_ID){
 			exit(0);
 		}	
 		y_coor+=speed;
-		if(y_coor>=15){
+		if(y_coor>=14){
 			speed=-speed*2;
 		}
 		if(y_coor<=0){
