@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glut.h>
-#define COUNT 100
+#define COUNT 200
 #define TIMER_ID 1
 
 #define TIMER_INTERVAL 20
-#define SPEED 0.2
+#define SPEED 0.4
+#define JUMPSPEED 0.5
 #define NUM_IMP 3
 /* deklaracija callback funkcija*/
 static void on_display();
@@ -20,12 +21,14 @@ static void lighting();
 static void draw_base();
 static void draw_impediments();
 static void draw_impediments2();
+static void check_right();
+static void check_left();
 
 /*dekleracije globalnih promenljivih*/
 static int in_air = 0;
 static float y_coor = 0; /*y koordinata marija*/
 static float x_coor = 0; /* x koordinata marija*/
-static float speed=SPEED; /*brzina skoka*/
+static float speed=JUMPSPEED; /*brzina skoka*/
 /* komponente za igraca */
 GLfloat ambient_legs[] = {0,0,1,1};
 GLfloat diffuse_legs[] = {0,0,1,1};
@@ -89,11 +92,11 @@ static void on_keyboard(unsigned char key,int x,int y){
 		}
 	}
 	else if (key == 'd' || key == 'D'){
-		x_coor += SPEED + 0.2;
+		check_right();
 		glutPostRedisplay();
 	}
 	else if (key == 'a' || key == 'A'){
-		x_coor -= SPEED + 0.2;
+		check_left();
 		glutPostRedisplay();
 	}
 
@@ -127,6 +130,9 @@ static void on_display(){
         glLoadIdentity();
         gluLookAt(0,1,50,0,0,0,0,1,0);
 	
+	printf("x: %f\n", x_coor);
+	printf("y: %f\n", y_coor);
+
 	/* poziva se funkcija koja iscrtava marija*/
 	glPushMatrix();
 		glTranslatef(0,y_coor,0);
@@ -141,20 +147,56 @@ static void on_display(){
 	glTranslatef(5,7,0);
 	glPushMatrix();
 		glTranslatef(-x_coor,-20,0);
+		glTranslatef(10, 0, 0);
+		draw_impediments();
+		glTranslatef(30, 0, 0);
+		draw_impediments();
+		glTranslatef(60, 0, 0);
+		draw_impediments();
 		glTranslatef(15,0,0);
 		draw_impediments();
 		glTranslatef(30,0,0);
 		draw_impediments();
 		glTranslatef(40,0,0);
 	 	draw_impediments();
+		glTranslatef(50, 0, 0);
+		draw_impediments();
 	glPopMatrix();
 	/* poziva se funkcija koja iscrtava cigle, to jest prepreke u vazduhu*/
 	glPushMatrix();
-		glTranslatef(10 - x_coor, -8, 0);
+		glTranslatef(20 - x_coor, -8, 0);
+		glTranslatef(5, 0, 0);
+		draw_impediments2();
+		glTranslatef(30, 0, 0);
+		draw_impediments2();
+		glTranslatef(3, 0, 0);
+		draw_impediments2();
+		glTranslatef(3, 0, 0);
+		draw_impediments2();
 		glTranslatef(15, 0, 0);
 		draw_impediments2();
-		glTranslatef(10, 0, 0);
+		glTranslatef(3, 0, 0);
 		draw_impediments2();
+		glTranslatef(3, 0, 0);
+		draw_impediments2();
+		glTranslatef(3, 0, 0);
+		draw_impediments2();
+		glTranslatef(45, 0, 0);
+		draw_impediments2();
+		glTranslatef(38, 0, 0);
+		draw_impediments2();
+		glTranslatef(3, 0, 0);
+		draw_impediments2();
+		glTranslatef(3, 0, 0);
+		draw_impediments2();
+		glTranslatef(17, 0, 0);
+		draw_impediments2();
+		int i;
+		for (i = 1; i < 14 ; i++){
+			glTranslatef(3, 0, 0);
+			draw_impediments2();
+		}
+		
 	glPopMatrix();
 	glutSwapBuffers();
 }    
@@ -201,8 +243,8 @@ static void draw_mario(){
 	glPushMatrix();
 		glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_arms);
       		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_arms);
-		glTranslatef(3.4,2,0);
-		glRotatef(60,0,0,1);
+		glTranslatef(3.2,2,0);
+		//glRotatef(60,0,0,1);
 		glColor3f(1,1,0);
 		glScalef(1,2.4,1);
 		glutSolidCube(1);
@@ -276,6 +318,69 @@ static void draw_impediments2(){
 		
 }
 
+
+static void check_right(){
+	float width = 9.57;
+	float height = 8;
+	float currImp = 29.19;
+	/*proveravamo da li se ispred nas nalazi zelena prepreka */
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
+		return;
+	currImp = 59.6;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
+		return;
+	currImp = 119.1;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
+		return;
+	currImp = 133.8;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
+		return;
+	currImp += 30;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
+		return;
+	currImp += 40;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
+		return;
+	currImp += 50;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
+		return;
+
+	/* sada proveravamo prepreke u vazduhu*/
+	width = 3;
+	height = 11;
+	currImp = 43.59;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height)
+		return;
+	x_coor += SPEED;
+}
+static void check_left(){
+	float width = 9.8;
+	float height = 8;
+	float currImp = 29.3 + width;
+	/*proveravamo da li se iza nas nalazi zelena prepreka */
+	if (x_coor > currImp - width && x_coor <= currImp && y_coor <= height){
+		return;
+	}
+	currImp = 59.7 + width;
+	if (x_coor > currImp - width && x_coor <= currImp && y_coor <= height)
+		return;
+	currImp = 119.3 + width;
+	if (x_coor > currImp - width && x_coor <= currImp && y_coor <= height)
+		return;
+	currImp = 134.01 + width ;
+	if (x_coor > currImp - width  && x_coor <= currImp && y_coor <= height)
+		return;
+	currImp += 30;
+	if (x_coor > currImp - width && x_coor <= currImp && y_coor <= height)
+		return;
+	currImp += 40;
+	if (x_coor > currImp - width && x_coor <= currImp  && y_coor <= height)
+		return;
+	currImp += 50;
+	if (x_coor > currImp - width && x_coor <= currImp  && y_coor <= height)
+		return;
+	x_coor -= SPEED;
+}
 static void on_timer(int value){
 		/*proveravamo da li dolazi sa tajmera za skok*/
 		if(value!=TIMER_ID){
@@ -287,7 +392,7 @@ static void on_timer(int value){
 		}
 		if(y_coor<=0){
 			in_air=0;
-			speed=SPEED;
+			speed=JUMPSPEED;
 			y_coor=0;
 		}
 		glutPostRedisplay();
