@@ -8,6 +8,10 @@
 #define SPEED 0.4
 #define JUMPSPEED 0.5
 #define NUM_IMP 3
+#define COUNTIMP 7
+#define MAXREACH 15
+#define GIP 7.1
+
 /* deklaracija callback funkcija*/
 static void on_display();
 static void on_keyboard(unsigned char key,int x,int y);
@@ -23,12 +27,20 @@ static void draw_impediments();
 static void draw_impediments2();
 static void check_right();
 static void check_left();
+static void check_jump();
+static int checkImp();
 
 /*dekleracije globalnih promenljivih*/
 static int in_air = 0;
 static float y_coor = 0; /*y koordinata marija*/
 static float x_coor = 0; /* x koordinata marija*/
 static float speed=JUMPSPEED; /*brzina skoka*/
+static int on_imp[COUNTIMP]; /*niz koji pokazuje na kojoj prepreci stojimo  */
+static int on_imp2[COUNTIMP]; /*pomocni niz koji pomaze prilikom skoka sa prepreke */
+static int down = 0; /* indikator koji pokazuje da li padamo ili ne*/
+static float extraJump = 0; /* povecava maksimalni domet skoka u vis kada se nalazimo na prepreci */ 
+static int flag = 1; /*pokazuje da li treba da skocimo u vis ili da padnemo sa prepreke */
+
 /* komponente za igraca */
 GLfloat ambient_legs[] = {0,0,1,1};
 GLfloat diffuse_legs[] = {0,0,1,1};
@@ -323,80 +335,280 @@ static void check_right(){
 	float width = 9.57;
 	float height = 8;
 	float currImp = 29.19;
-	/*proveravamo da li se ispred nas nalazi zelena prepreka */
+	/*proveravamo da li se ispred nas nalazi zelena prepreka 
+	Takodje gledamo da li smo sisli sa prepreke, ako smo uopste bili na njoj, i u tom slucaju sledi pad*/
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
 		return;
+	if (on_imp[0] && x_coor > currImp + width){
+		in_air = 1;
+		down = 1;
+		on_imp[0] = 0;
+		on_timer(TIMER_ID);
+	}
 	currImp = 59.6;
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
 		return;
+	if (on_imp[1] && x_coor > currImp + width){
+		in_air = 1;
+		down = 1;
+		on_imp[1]= 0;
+		on_timer(TIMER_ID);
+	}
 	currImp = 119.1;
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
 		return;
+	if (on_imp[2] && x_coor > currImp + width){
+		in_air = 1;
+		down = 1;
+		on_imp[2] = 0;
+		on_timer(TIMER_ID);
+	}
 	currImp = 133.8;
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
 		return;
+	if (on_imp[3] && x_coor > currImp + width){
+		in_air = 1;
+		down = 1;
+		on_imp[3] = 0;
+		on_timer(TIMER_ID);
+	}
 	currImp += 30;
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
 		return;
+	if (on_imp[4] && x_coor > currImp + width){
+		in_air = 1;
+		down = 1;
+		on_imp[4] = 0;
+		on_timer(TIMER_ID);
+	}
 	currImp += 40;
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
 		return;
+	if (on_imp[5] && x_coor > currImp + width){
+		in_air = 1;
+		down = 1;
+		on_imp[5] = 0;
+		on_timer(TIMER_ID);
+	}
 	currImp += 50;
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
 		return;
-
-	/* sada proveravamo prepreke u vazduhu*/
-	width = 3;
-	height = 11;
-	currImp = 43.59;
-	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height)
-		return;
+	if (on_imp[6] && x_coor > currImp + width){
+		in_air = 1;
+		down = 1;
+		on_imp[6] = 0;
+		on_timer(TIMER_ID);
+	}
+	
 	x_coor += SPEED;
 }
 static void check_left(){
 	float width = 9.8;
 	float height = 8;
 	float currImp = 29.3 + width;
-	/*proveravamo da li se iza nas nalazi zelena prepreka */
+	/*proveravamo da li se iza nas nalazi zelena prepreka
+	 Isto ka i kod kretanja desno gledamo da li imamo pad sa prepreke */
 	if (x_coor > currImp - width && x_coor <= currImp && y_coor <= height){
 		return;
+	}
+	if (on_imp[0] && x_coor < currImp - width){
+		in_air = 1;
+		down = 1;
+		on_imp[0] = 0;
+		on_imp2[0] = 0;
+		on_timer(TIMER_ID);
 	}
 	currImp = 59.7 + width;
 	if (x_coor > currImp - width && x_coor <= currImp && y_coor <= height)
 		return;
+	if (on_imp[1] && x_coor < currImp - width){
+		in_air = 1;
+		down = 1;
+		on_imp[1] = 0;
+		on_imp2[1] = 0;
+		on_timer(TIMER_ID);
+	}
 	currImp = 119.3 + width;
 	if (x_coor > currImp - width && x_coor <= currImp && y_coor <= height)
 		return;
+	if (on_imp[2] && x_coor < currImp - width){
+		in_air = 1;
+		down = 1;
+		on_imp[2] = 0;
+		on_imp2[2] = 0;
+		on_timer(TIMER_ID);
+	}
 	currImp = 134.01 + width ;
 	if (x_coor > currImp - width  && x_coor <= currImp && y_coor <= height)
 		return;
+	if (on_imp[3] && x_coor < currImp - width){
+		in_air = 1;
+		down = 1;
+		on_imp[3] = 0;
+		on_imp2[3] = 0;
+		on_timer(TIMER_ID);
+	}
 	currImp += 30;
 	if (x_coor > currImp - width && x_coor <= currImp && y_coor <= height)
 		return;
+	if (on_imp[4] && x_coor < currImp - width){
+		in_air = 1;
+		down = 1;
+		on_imp[4] = 0;
+		on_imp2[4] = 0;
+		on_timer(TIMER_ID);
+	}
 	currImp += 40;
 	if (x_coor > currImp - width && x_coor <= currImp  && y_coor <= height)
 		return;
+	if (on_imp[5] && x_coor < currImp - width){
+		in_air = 1;
+		down = 1;
+		on_imp[5] = 0;
+		on_imp2[5] = 0;
+		on_timer(TIMER_ID);
+	}
 	currImp += 50;
 	if (x_coor > currImp - width && x_coor <= currImp  && y_coor <= height)
 		return;
+	if (on_imp[6] && x_coor < currImp - width){
+		in_air = 1;
+		down = 1;
+		on_imp[6] = 0;
+		on_imp2[6] = 0;
+		on_timer(TIMER_ID);
+	}
 	x_coor -= SPEED;
 }
+
+
+static void check_jump(){
+	/* proveravamo da nasu poziciju, to jest da li ako nastavimo skok u vis prolazimo kroz prepreku i ako je to slucaj sprecavamo */
+	float width = 9;
+	float height = 12.9;
+	float currImp = 43.59;
+	y_coor += speed;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height){
+		speed =- speed*2;
+		return;
+	}
+	currImp = 74;
+	if (x_coor >= currImp && x_coor < currImp + 2*width && y_coor >= height){
+		speed =- speed*2;
+		return;
+	}
+	currImp = 95.2;
+	if (x_coor >= currImp && x_coor < currImp + 3*width && y_coor >= height){
+		speed =- speed*2;
+		return;
+	}
+	currImp = 149.2;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height){
+		speed =- speed*2;
+		return;
+	}
+	currImp = 187.18;
+	if (x_coor >= currImp && x_coor < currImp + 3*width && y_coor >= height){
+		speed =- speed*2;
+		return;
+	}
+	currImp = 210.3;
+	if (x_coor >= currImp && x_coor < currImp + 16*width && y_coor >= height){
+		speed =- speed*2;
+		return;
+	}
+	
+	width = 9.57;
+	height = 8.4;
+	currImp = 29.19;
+	/*proveravamo da li se nalazimo na zelenoj prepreci, sprecavamo da prodjemo kroz nju */
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height && y_coor <= height + 0.8){
+		on_imp[0] = 1;
+		on_imp2[0] = 1;
+		in_air = 0;
+		extraJump = GIP;
+	}
+	
+	currImp = 59.6;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height && y_coor <= height + 0.8){
+		on_imp[1] = 1;
+		on_imp2[1] = 1;
+		in_air = 0;
+		extraJump = GIP;
+	}
+	currImp = 119.1;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height && y_coor <= height + 0.8){
+		on_imp[2] = 1;
+		on_imp2[2] = 1;
+		in_air = 0;
+		extraJump = GIP;
+	}
+	currImp = 133.8;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height && y_coor <= height + 0.8){
+		on_imp[3] = 1;
+		on_imp2[3] = 1;
+		in_air = 0;
+		extraJump = GIP;
+	}
+	currImp += 30;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height && y_coor <= height + 0.8){
+		on_imp[4] = 1;
+		on_imp2[4] = 1;
+		in_air = 0;
+		extraJump = GIP;
+	}
+	currImp += 40;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height && y_coor <= height + 0.8){
+		on_imp[5] = 1;
+		on_imp2[5] = 1;
+		in_air = 0;
+		extraJump = GIP;
+	}
+	currImp += 50;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height && y_coor <= height + 0.8){
+		on_imp[6] = 1;
+		on_imp2[6] = 1;
+		in_air = 0;
+		extraJump = GIP;
+	}
+	
+}
+
 static void on_timer(int value){
 		/*proveravamo da li dolazi sa tajmera za skok*/
 		if(value!=TIMER_ID){
 			exit(0);
-		}	
-		y_coor+=speed;
-		if(y_coor>=14){
-			speed=-speed*2;
+		}
+		check_jump();	
+		if (checkImp() )
+			speed = JUMPSPEED;
+		if(y_coor>=MAXREACH + extraJump || down){
+			if (speed> 0 )
+				speed=-speed*1.5;
+			down = 0;
+			flag = 0;
 		}
 		if(y_coor<=0){
-			in_air=0;
-			speed=JUMPSPEED;
-			y_coor=0;
+			in_air = 0;
+			speed = JUMPSPEED;
+			y_coor = 0;
+			down = 0;
+			extraJump = 0;
+			flag = 0;
 		}
 		glutPostRedisplay();
 		if(in_air)
            		 glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 }        
+
+/* vraca tacno ako stojimo na nekoj prepreci */
+static int checkImp(){
+	int i;
+	for (i = 0; i < COUNTIMP; i++)
+		if (on_imp2[i] == 1){
+			on_imp2[i] = 0;
+			return 1;
+		}
+	return 0;
+}
 
