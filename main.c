@@ -10,7 +10,8 @@
 #define NUM_IMP 3
 #define COUNTIMP 7
 #define MAXREACH 15
-#define GIP 7.1
+#define GIP 10.51
+#define GIPSECOND 17.4
 
 /* deklaracija callback funkcija*/
 static void on_display();
@@ -29,6 +30,7 @@ static void check_right();
 static void check_left();
 static void check_jump();
 static int checkImp();
+static int checkImp2();
 
 /*dekleracije globalnih promenljivih*/
 static int in_air = 0;
@@ -37,6 +39,8 @@ static float x_coor = 0; /* x koordinata marija*/
 static float speed=JUMPSPEED; /*brzina skoka*/
 static int on_imp[COUNTIMP]; /*niz koji pokazuje na kojoj prepreci stojimo  */
 static int on_imp2[COUNTIMP]; /*pomocni niz koji pomaze prilikom skoka sa prepreke */
+static int on_imp_air[COUNT]; /* niz koji pokazaju na kojoj vazdusnoj prepreci stojimo */
+static int on_imp_air2[COUNT]; /* pomocni niz koji pomaze prilikom skoka sa visece prepreke */
 static int down = 0; /* indikator koji pokazuje da li padamo ili ne*/
 static float extraJump = 0; /* povecava maksimalni domet skoka u vis kada se nalazimo na prepreci */ 
 static int flag = 1; /*pokazuje da li treba da skocimo u vis ili da padnemo sa prepreke */
@@ -144,6 +148,7 @@ static void on_display(){
 	
 	printf("x: %f\n", x_coor);
 	printf("y: %f\n", y_coor);
+	printf("extraaa %f\n", extraJump);
 
 	/* poziva se funkcija koja iscrtava marija*/
 	glPushMatrix();
@@ -176,7 +181,7 @@ static void on_display(){
 	glPopMatrix();
 	/* poziva se funkcija koja iscrtava cigle, to jest prepreke u vazduhu*/
 	glPushMatrix();
-		glTranslatef(20 - x_coor, -8, 0);
+		glTranslatef(20 - x_coor, -7, 0);
 		glTranslatef(5, 0, 0);
 		draw_impediments2();
 		glTranslatef(30, 0, 0);
@@ -341,7 +346,8 @@ static void check_right(){
 		return;
 	if (on_imp[0] && x_coor > currImp + width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[0] = 0;
 		on_timer(TIMER_ID);
 	}
@@ -350,7 +356,8 @@ static void check_right(){
 		return;
 	if (on_imp[1] && x_coor > currImp + width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[1]= 0;
 		on_timer(TIMER_ID);
 	}
@@ -359,7 +366,8 @@ static void check_right(){
 		return;
 	if (on_imp[2] && x_coor > currImp + width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[2] = 0;
 		on_timer(TIMER_ID);
 	}
@@ -368,7 +376,8 @@ static void check_right(){
 		return;
 	if (on_imp[3] && x_coor > currImp + width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[3] = 0;
 		on_timer(TIMER_ID);
 	}
@@ -377,7 +386,8 @@ static void check_right(){
 		return;
 	if (on_imp[4] && x_coor > currImp + width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[4] = 0;
 		on_timer(TIMER_ID);
 	}
@@ -386,7 +396,8 @@ static void check_right(){
 		return;
 	if (on_imp[5] && x_coor > currImp + width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[5] = 0;
 		on_timer(TIMER_ID);
 	}
@@ -395,11 +406,70 @@ static void check_right(){
 		return;
 	if (on_imp[6] && x_coor > currImp + width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[6] = 0;
 		on_timer(TIMER_ID);
 	}
-	
+	/* sada proveravamo da li se nalazimo na preprekama u vazduhu i implementiramo  pad */
+
+	width = 8;
+	height = 12.9;
+	currImp = 43.59;
+	float imp_height = 15.0;
+	if (x_coor >= currImp + width + 0.2 && on_imp_air[0]){
+		in_air = 1;
+		if(y_coor <= imp_height + 8.2)
+			down = 1;
+		on_imp_air[0] = 0;
+		on_imp_air2[0] = 0;
+		on_timer(TIMER_ID);
+	}
+	currImp = 74;
+	if (x_coor >= currImp + 2*width + 0.2 && on_imp_air[1]){
+		in_air = 1;
+		if(y_coor <= imp_height + 8.2)
+			down = 1;
+		on_imp_air[1] = 0;
+		on_imp_air2[1] = 0;
+		on_timer(TIMER_ID);
+	}
+	currImp = 95.2;
+	if (x_coor >= currImp + 3*width + 0.2 && on_imp_air[2]){
+		in_air = 1;
+		if(y_coor <= imp_height + 8.2)
+			down = 1;
+		on_imp_air[2] = 0;
+		on_imp_air2[2] = 0;
+		on_timer(TIMER_ID);
+	}
+	currImp = 149.2;
+	if (x_coor >= currImp + width + 0.2 && on_imp_air[3]){
+		in_air = 1;
+		if(y_coor <= imp_height + 8.2)
+			down = 1;
+		on_imp_air[3] = 0;
+		on_imp_air2[3] = 0;
+		on_timer(TIMER_ID);
+	}
+	currImp = 187.18;
+	if (x_coor >= currImp + 2*width  && on_imp_air[4]){
+		in_air = 1;
+		if(y_coor <= imp_height + 8.2)
+			down = 1;
+		on_imp_air[4] = 0;
+		on_imp_air2[4] = 0;
+		on_timer(TIMER_ID);
+	}
+	currImp = 210.3;
+	if (x_coor >= currImp + 6*width && on_imp_air[5]){
+		in_air = 1;
+		if(y_coor <= imp_height + 8.2)
+			down = 1;
+		on_imp_air[5] = 0;
+		on_imp_air2[5] = 0;
+		on_timer(TIMER_ID);
+	}
 	x_coor += SPEED;
 }
 static void check_left(){
@@ -413,7 +483,8 @@ static void check_left(){
 	}
 	if (on_imp[0] && x_coor < currImp - width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[0] = 0;
 		on_imp2[0] = 0;
 		on_timer(TIMER_ID);
@@ -423,7 +494,8 @@ static void check_left(){
 		return;
 	if (on_imp[1] && x_coor < currImp - width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[1] = 0;
 		on_imp2[1] = 0;
 		on_timer(TIMER_ID);
@@ -433,7 +505,8 @@ static void check_left(){
 		return;
 	if (on_imp[2] && x_coor < currImp - width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[2] = 0;
 		on_imp2[2] = 0;
 		on_timer(TIMER_ID);
@@ -443,7 +516,8 @@ static void check_left(){
 		return;
 	if (on_imp[3] && x_coor < currImp - width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[3] = 0;
 		on_imp2[3] = 0;
 		on_timer(TIMER_ID);
@@ -453,7 +527,8 @@ static void check_left(){
 		return;
 	if (on_imp[4] && x_coor < currImp - width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[4] = 0;
 		on_imp2[4] = 0;
 		on_timer(TIMER_ID);
@@ -463,7 +538,8 @@ static void check_left(){
 		return;
 	if (on_imp[5] && x_coor < currImp - width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[5] = 0;
 		on_imp2[5] = 0;
 		on_timer(TIMER_ID);
@@ -473,9 +549,69 @@ static void check_left(){
 		return;
 	if (on_imp[6] && x_coor < currImp - width){
 		in_air = 1;
-		down = 1;
+		if(y_coor <= height + 1.2)
+			down = 1;
 		on_imp[6] = 0;
 		on_imp2[6] = 0;
+		on_timer(TIMER_ID);
+	}
+	/* sada proveravamo da li se nalazimo na preprekama u vazduhu i implementiramo  pad  */
+
+	width = 8;
+	height = 12.9;
+	currImp = 43.59;
+	float imp_height = 15.0;
+	if (x_coor <= currImp && on_imp_air[0]){
+		in_air = 1;
+		if(y_coor <= imp_height + 8.2)
+			down = 1;
+		on_imp_air[0] = 0;
+		on_imp_air2[0] = 0;
+		on_timer(TIMER_ID);
+	}
+	currImp = 74;
+	if (x_coor <= currImp && on_imp_air[1]){
+		in_air = 1;
+		if(y_coor <= imp_height + 8.2)
+			down = 1;
+		on_imp_air[1] = 0;
+		on_imp_air2[1] = 0;
+		on_timer(TIMER_ID);
+	}
+	currImp = 95.2;
+	if (x_coor <= currImp && on_imp_air[2]){
+		in_air = 1;
+		if(y_coor <= imp_height + 8.2)
+			down = 1;
+		on_imp_air[2] = 0;
+		on_imp_air2[2] = 0;
+		on_timer(TIMER_ID);
+	}
+	currImp = 149.2;
+	if (x_coor <= currImp  && on_imp_air[3]){
+		in_air = 1;
+		if(y_coor <= imp_height + 8.2)
+			down = 1;
+		on_imp_air[3] = 0;
+		on_imp_air2[3] = 0;
+		on_timer(TIMER_ID);
+	}
+	currImp = 187.18;
+	if (x_coor <= currImp  && on_imp_air[4]){
+		in_air = 1;
+		if(y_coor <= imp_height + 8.2)
+			down = 1;
+		on_imp_air[4] = 0;
+		on_imp_air2[4] = 0;
+		on_timer(TIMER_ID);
+	}
+	currImp = 210.3;
+	if (x_coor <= currImp && on_imp_air[5]){
+		in_air = 1;
+		if(y_coor <= imp_height + 8.2)
+			down = 1;
+		on_imp_air[5] = 0;
+		on_imp_air[5] = 0;
 		on_timer(TIMER_ID);
 	}
 	x_coor -= SPEED;
@@ -484,38 +620,91 @@ static void check_left(){
 
 static void check_jump(){
 	/* proveravamo da nasu poziciju, to jest da li ako nastavimo skok u vis prolazimo kroz prepreku i ako je to slucaj sprecavamo */
-	float width = 9;
+	/* i omogucavamo skok na prepreku */
+	/* takodje implementira se skok sa visece prepreke */
+	float width = 8;
 	float height = 12.9;
 	float currImp = 43.59;
+	float imp_height = 15.0;
 	y_coor += speed;
-	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height){
-		speed =- speed*2;
-		return;
+	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height ){
+		if(!extraJump){
+			speed =- speed*2;
+			return;
+		}
+		else if ( y_coor >= imp_height + 7 && y_coor <= imp_height + 7.5){
+			//y_coor = imp_height + 6;
+			on_imp_air[0] = 1;
+			on_imp_air2[0] = 1;
+			in_air = 0;
+			extraJump = GIPSECOND;
+		}
+		
 	}
 	currImp = 74;
 	if (x_coor >= currImp && x_coor < currImp + 2*width && y_coor >= height){
-		speed =- speed*2;
-		return;
+		if(!extraJump){
+			speed =- speed*2;
+			return;
+		}
+		else if ( y_coor >= imp_height + 7 && y_coor <= imp_height + 7.5 ){
+			on_imp_air[1] = 1;
+			on_imp_air2[1] = 1;
+			in_air = 0;
+			extraJump = GIPSECOND;
+		}
 	}
 	currImp = 95.2;
-	if (x_coor >= currImp && x_coor < currImp + 3*width && y_coor >= height){
-		speed =- speed*2;
-		return;
+	if (x_coor >= currImp && x_coor < currImp + 2.5*width && y_coor >= height){
+		if(!extraJump){
+			speed =- speed*2;
+			return;
+		}
+		else if ( y_coor >= imp_height + 7 && y_coor <= imp_height + 7.5 ){
+			on_imp_air[2] = 1;
+			on_imp_air2[2] = 1;
+			in_air = 0;
+			extraJump = GIPSECOND;
+		}
 	}
 	currImp = 149.2;
-	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height){
-		speed =- speed*2;
-		return;
+	if (x_coor >= currImp && x_coor < currImp + width + 0.3 && y_coor >= height){
+		if(!extraJump){
+			speed =- speed*2;
+			return;
+		}
+		else if ( y_coor >= imp_height + 7 && y_coor <= imp_height + 7.5 ){
+			on_imp_air[3] = 1;
+			on_imp_air2[3] = 1;
+			in_air = 0;
+			extraJump = GIPSECOND;
+		}
 	}
 	currImp = 187.18;
-	if (x_coor >= currImp && x_coor < currImp + 3*width && y_coor >= height){
-		speed =- speed*2;
-		return;
+	if (x_coor >= currImp && x_coor < currImp + 2*width && y_coor >= height){
+		if(!extraJump){
+			speed =- speed*2;
+			return;
+		}
+		else if ( y_coor >= imp_height + 7 && y_coor <= imp_height + 7.5 ){
+			on_imp_air[4] = 1;
+			on_imp_air2[4] = 1;
+			in_air = 0;
+			extraJump = GIPSECOND;
+		}
 	}
 	currImp = 210.3;
-	if (x_coor >= currImp && x_coor < currImp + 16*width && y_coor >= height){
-		speed =- speed*2;
-		return;
+	if (x_coor >= currImp && x_coor < currImp + 6*width && y_coor >= height){
+		if(!extraJump){
+			speed =- speed*2;
+			return;
+		}
+		else if ( y_coor >= imp_height + 7 && y_coor <= imp_height + 7.5 ){
+			on_imp_air[5] = 1;
+			on_imp_air2[5] = 1;
+			in_air = 0;
+			extraJump = GIPSECOND;
+		}
 	}
 	
 	width = 9.57;
@@ -580,7 +769,9 @@ static void on_timer(int value){
 			exit(0);
 		}
 		check_jump();	
-		if (checkImp() )
+		if (checkImp())
+			speed = JUMPSPEED;
+		if (checkImp2())
 			speed = JUMPSPEED;
 		if(y_coor>=MAXREACH + extraJump || down){
 			if (speed> 0 )
@@ -611,4 +802,12 @@ static int checkImp(){
 		}
 	return 0;
 }
-
+static int checkImp2(){
+	int i;
+	for (i = 0; i < COUNT; i++)
+		if (on_imp_air2[i] == 1){
+			on_imp_air2[i] = 0;
+			return 1;
+		}
+	return 0;
+}
