@@ -26,12 +26,17 @@ static void lighting();
 static void draw_base();
 static void draw_impediments();
 static void draw_impediments2();
+static void draw_impediments3();
 static void check_right();
 static void check_left();
 static void check_jump();
 static int checkImp();
 static int checkImp2();
-
+static int check_right_green_imp();
+static int check_right_air_imp();
+static int check_left_air_imp();
+static int check_left_green_imp();
+static void check_jump_green();
 /*dekleracije globalnih promenljivih*/
 static int in_air = 0;
 static float y_coor = 0; /*y koordinata marija*/
@@ -78,7 +83,7 @@ int main(int argc, char **argv){
 	glutKeyboardFunc(on_keyboard);
 	
 	/*OpenGL inicijalizacija*/
-	glClearColor(0.75, 0.75, 0.75, 0);
+	glClearColor(0.529412, 0.807843, 0.921569, 1);
         glEnable(GL_DEPTH_TEST);
 
 	lighting();
@@ -145,10 +150,20 @@ static void on_display(){
 	glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         gluLookAt(0,1,50,0,0,0,0,1,0);
-	
-	printf("x: %f\n", x_coor);
-	printf("y: %f\n", y_coor);
-	printf("extraaa %f\n", extraJump);
+	/* naredni uslovi proveravaju da li se nalazimo u rupi  */
+	if (x_coor >= 88.8 && x_coor <= 92.8 && y_coor == 0)
+		exit(EXIT_SUCCESS);
+	else if (x_coor >= 128.8 && x_coor <= 133.6 && y_coor == 0)
+		exit(EXIT_SUCCESS);
+	else if  (x_coor >= 143 && x_coor <= 145.9 && y_coor == 0)
+		exit(EXIT_SUCCESS);
+	else if (x_coor >= 161.9 && x_coor <= 163.9 && y_coor == 0)
+		exit(EXIT_SUCCESS);
+	else if (x_coor >= 213.59 && x_coor <= 253.9 && y_coor == 0)
+		exit(EXIT_SUCCESS);
+	/* naredni uslov proverava da li smo prosli sve prepreke */
+	if (x_coor >= 264 && y_coor == 0)
+		exit(EXIT_SUCCESS);
 
 	/* poziva se funkcija koja iscrtava marija*/
 	glPushMatrix();
@@ -215,6 +230,27 @@ static void on_display(){
 		}
 		
 	glPopMatrix();
+	/* poziva se funkcija koja iscrtava rupe */
+	glPushMatrix();
+		glTranslatef(-x_coor, -29.98, 0);
+		glTranslatef(66.8, 0, 0);
+		draw_impediments3();
+		glTranslatef(39.2 , 0, 0);
+		draw_impediments3();
+		glTranslatef(2, 0, 0);
+		draw_impediments3();
+		glTranslatef(12, 0, 0);
+		draw_impediments3();
+		glTranslatef(20, 0, 0);
+		draw_impediments3();
+		glTranslatef(50, 0, 0);
+		draw_impediments3();
+		for (i = 1; i < 14 ; i++){
+			glTranslatef(3, 0, 0);
+			draw_impediments3();
+		}
+	glPopMatrix();
+
 	glutSwapBuffers();
 }    
 
@@ -335,15 +371,35 @@ static void draw_impediments2(){
 		
 }
 
-
+static void draw_impediments3(){
+	glDisable(GL_LIGHTING);
+	glDisable(GL_LIGHT0);
+	glColor3f(0.529412, 0.807843, 0.921569);
+	glutSolidCube(4);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+}
 static void check_right(){
+	
+	if (check_right_green_imp())
+		return;
+	if (check_right_air_imp())
+		return;
+	
+
+	
+	x_coor += SPEED;
+}
+
+
+static int check_right_green_imp(){
+	/*proveravamo da li se ispred nas nalazi zelena prepreka i sprecava prolaz kroz nju.
+	Takodje gledamo da li smo sisli sa prepreke, ako smo uopste bili na njoj, i u tom slucaju sledi pad*/
 	float width = 9.57;
 	float height = 8;
 	float currImp = 29.19;
-	/*proveravamo da li se ispred nas nalazi zelena prepreka 
-	Takodje gledamo da li smo sisli sa prepreke, ako smo uopste bili na njoj, i u tom slucaju sledi pad*/
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[0] && x_coor > currImp + width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -353,7 +409,7 @@ static void check_right(){
 	}
 	currImp = 59.6;
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[1] && x_coor > currImp + width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -363,7 +419,7 @@ static void check_right(){
 	}
 	currImp = 119.1;
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[2] && x_coor > currImp + width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -373,7 +429,7 @@ static void check_right(){
 	}
 	currImp = 133.8;
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[3] && x_coor > currImp + width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -383,7 +439,7 @@ static void check_right(){
 	}
 	currImp += 30;
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[4] && x_coor > currImp + width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -393,7 +449,7 @@ static void check_right(){
 	}
 	currImp += 40;
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[5] && x_coor > currImp + width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -403,7 +459,7 @@ static void check_right(){
 	}
 	currImp += 50;
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[6] && x_coor > currImp + width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -411,12 +467,20 @@ static void check_right(){
 		on_imp[6] = 0;
 		on_timer(TIMER_ID);
 	}
-	/* sada proveravamo da li se nalazimo na preprekama u vazduhu i implementiramo  pad */
+	return 0;
+}
 
-	width = 8;
-	height = 12.9;
-	currImp = 43.59;
+static int check_right_air_imp(){
+	/* sada proveravamo da li se nalazimo na preprekama u vazduhu i implementiramo  pad */
+	/* proveravamo da li udaramo u prepreke i ako je to slucaj implementira se odbijanje od njih */
+	float width = 8;
+	float height = 13.2;
+	float currImp = 43.59;
 	float imp_height = 15.0;
+	if(x_coor >= currImp &&  x_coor < currImp + width && y_coor < imp_height && y_coor > height){
+		x_coor = currImp;
+		return 1;
+	}
 	if (x_coor >= currImp + width + 0.2 && on_imp_air[0]){
 		in_air = 1;
 		if(y_coor <= imp_height + 8.2)
@@ -426,6 +490,10 @@ static void check_right(){
 		on_timer(TIMER_ID);
 	}
 	currImp = 74;
+	if(x_coor >= currImp &&  x_coor < currImp + 2*width && y_coor < imp_height && y_coor > height){
+		x_coor = currImp;
+		return 1;
+	}
 	if (x_coor >= currImp + 2*width + 0.2 && on_imp_air[1]){
 		in_air = 1;
 		if(y_coor <= imp_height + 8.2)
@@ -435,7 +503,11 @@ static void check_right(){
 		on_timer(TIMER_ID);
 	}
 	currImp = 95.2;
-	if (x_coor >= currImp + 3*width + 0.2 && on_imp_air[2]){
+	if(x_coor >= currImp &&  x_coor < currImp + 2.35*width && y_coor < imp_height && y_coor > height){
+		x_coor = currImp;
+		return 1;
+	}
+	if (x_coor >= currImp + 2.35*width + 0.2 && on_imp_air[2]){
 		in_air = 1;
 		if(y_coor <= imp_height + 8.2)
 			down = 1;
@@ -444,6 +516,10 @@ static void check_right(){
 		on_timer(TIMER_ID);
 	}
 	currImp = 149.2;
+	if(x_coor >= currImp &&  x_coor < currImp + width && y_coor < imp_height && y_coor > height){
+		x_coor = currImp;
+		return 1;
+	}
 	if (x_coor >= currImp + width + 0.2 && on_imp_air[3]){
 		in_air = 1;
 		if(y_coor <= imp_height + 8.2)
@@ -453,6 +529,10 @@ static void check_right(){
 		on_timer(TIMER_ID);
 	}
 	currImp = 187.18;
+	if(x_coor >= currImp &&  x_coor < currImp + 2*width && y_coor < imp_height && y_coor > height){
+		x_coor = currImp;
+		return 1;
+	}
 	if (x_coor >= currImp + 2*width  && on_imp_air[4]){
 		in_air = 1;
 		if(y_coor <= imp_height + 8.2)
@@ -462,6 +542,10 @@ static void check_right(){
 		on_timer(TIMER_ID);
 	}
 	currImp = 210.3;
+	if(x_coor >= currImp &&  x_coor < currImp + 6*width && y_coor < imp_height && y_coor > height){
+		x_coor = currImp;
+		return 1;
+	}
 	if (x_coor >= currImp + 6*width && on_imp_air[5]){
 		in_air = 1;
 		if(y_coor <= imp_height + 8.2)
@@ -470,16 +554,26 @@ static void check_right(){
 		on_imp_air2[5] = 0;
 		on_timer(TIMER_ID);
 	}
-	x_coor += SPEED;
+	return 0;
 }
+
 static void check_left(){
+	if (check_left_green_imp())
+		return;
+	if(check_left_air_imp())
+		return;
+	
+	x_coor -= SPEED;
+}
+
+static int check_left_green_imp(){
+	/*proveravamo da li se iza nas nalazi zelena prepreka
+	 Isto ka i kod kretanja desno gledamo da li imamo pad sa prepreke */
 	float width = 9.8;
 	float height = 8;
 	float currImp = 29.3 + width;
-	/*proveravamo da li se iza nas nalazi zelena prepreka
-	 Isto ka i kod kretanja desno gledamo da li imamo pad sa prepreke */
 	if (x_coor > currImp - width && x_coor <= currImp && y_coor <= height){
-		return;
+		return 1;
 	}
 	if (on_imp[0] && x_coor < currImp - width){
 		in_air = 1;
@@ -491,7 +585,7 @@ static void check_left(){
 	}
 	currImp = 59.7 + width;
 	if (x_coor > currImp - width && x_coor <= currImp && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[1] && x_coor < currImp - width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -502,7 +596,7 @@ static void check_left(){
 	}
 	currImp = 119.3 + width;
 	if (x_coor > currImp - width && x_coor <= currImp && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[2] && x_coor < currImp - width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -513,7 +607,7 @@ static void check_left(){
 	}
 	currImp = 134.01 + width ;
 	if (x_coor > currImp - width  && x_coor <= currImp && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[3] && x_coor < currImp - width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -524,7 +618,7 @@ static void check_left(){
 	}
 	currImp += 30;
 	if (x_coor > currImp - width && x_coor <= currImp && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[4] && x_coor < currImp - width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -535,7 +629,7 @@ static void check_left(){
 	}
 	currImp += 40;
 	if (x_coor > currImp - width && x_coor <= currImp  && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[5] && x_coor < currImp - width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -546,7 +640,7 @@ static void check_left(){
 	}
 	currImp += 50;
 	if (x_coor > currImp - width && x_coor <= currImp  && y_coor <= height)
-		return;
+		return 1;
 	if (on_imp[6] && x_coor < currImp - width){
 		in_air = 1;
 		if(y_coor <= height + 1.2)
@@ -555,12 +649,20 @@ static void check_left(){
 		on_imp2[6] = 0;
 		on_timer(TIMER_ID);
 	}
-	/* sada proveravamo da li se nalazimo na preprekama u vazduhu i implementiramo  pad  */
+	return 0;
+}
 
-	width = 8;
-	height = 12.9;
-	currImp = 43.59;
+static int check_left_air_imp(){
+	/* sada proveravamo da li se nalazimo na preprekama u vazduhu i implementiramo  pad, implementiramo odbijanje od prepreke */
+
+	float width = 8;
+	float height = 13.2;
+	float currImp = 43.59;
 	float imp_height = 15.0;
+	if(x_coor > currImp &&  x_coor <= currImp + width && y_coor < imp_height && y_coor > height){
+		x_coor = currImp + width;
+		return 1;
+	}
 	if (x_coor <= currImp && on_imp_air[0]){
 		in_air = 1;
 		if(y_coor <= imp_height + 8.2)
@@ -570,6 +672,10 @@ static void check_left(){
 		on_timer(TIMER_ID);
 	}
 	currImp = 74;
+	if(x_coor > currImp &&  x_coor <= currImp + 2*width && y_coor < imp_height && y_coor > height){
+		x_coor = currImp + 2*width;
+		return 1;
+	}
 	if (x_coor <= currImp && on_imp_air[1]){
 		in_air = 1;
 		if(y_coor <= imp_height + 8.2)
@@ -579,6 +685,10 @@ static void check_left(){
 		on_timer(TIMER_ID);
 	}
 	currImp = 95.2;
+	if(x_coor > currImp &&  x_coor <= currImp + 2.35*width && y_coor < imp_height && y_coor > height){
+		x_coor = currImp + 2.35*width;
+		return 1;
+	}
 	if (x_coor <= currImp && on_imp_air[2]){
 		in_air = 1;
 		if(y_coor <= imp_height + 8.2)
@@ -588,6 +698,10 @@ static void check_left(){
 		on_timer(TIMER_ID);
 	}
 	currImp = 149.2;
+	if(x_coor > currImp &&  x_coor <= currImp + width && y_coor < imp_height && y_coor > height){
+		x_coor = currImp + width;
+		return 1;
+	}
 	if (x_coor <= currImp  && on_imp_air[3]){
 		in_air = 1;
 		if(y_coor <= imp_height + 8.2)
@@ -597,6 +711,10 @@ static void check_left(){
 		on_timer(TIMER_ID);
 	}
 	currImp = 187.18;
+	if(x_coor > currImp &&  x_coor <= currImp + 2*width && y_coor < imp_height && y_coor > height){
+		x_coor = currImp + 2*width;
+		return 1;
+	}
 	if (x_coor <= currImp  && on_imp_air[4]){
 		in_air = 1;
 		if(y_coor <= imp_height + 8.2)
@@ -606,6 +724,10 @@ static void check_left(){
 		on_timer(TIMER_ID);
 	}
 	currImp = 210.3;
+	if(x_coor > currImp &&  x_coor <= currImp + 6*width && y_coor < imp_height && y_coor > height){
+		x_coor = currImp + 6*width;
+		return 1;
+	}
 	if (x_coor <= currImp && on_imp_air[5]){
 		in_air = 1;
 		if(y_coor <= imp_height + 8.2)
@@ -614,9 +736,8 @@ static void check_left(){
 		on_imp_air[5] = 0;
 		on_timer(TIMER_ID);
 	}
-	x_coor -= SPEED;
+	return 0;
 }
-
 
 static void check_jump(){
 	/* proveravamo da nasu poziciju, to jest da li ako nastavimo skok u vis prolazimo kroz prepreku i ako je to slucaj sprecavamo */
@@ -706,10 +827,15 @@ static void check_jump(){
 			extraJump = GIPSECOND;
 		}
 	}
+	check_jump_green();
 	
-	width = 9.57;
-	height = 8.4;
-	currImp = 29.19;
+}
+
+
+static void check_jump_green(){
+	float width = 9.57;
+	float height = 8.4;
+	float currImp = 29.19;
 	/*proveravamo da li se nalazimo na zelenoj prepreci, sprecavamo da prodjemo kroz nju */
 	if (x_coor >= currImp && x_coor < currImp + width && y_coor >= height && y_coor <= height + 0.8){
 		on_imp[0] = 1;
@@ -760,7 +886,6 @@ static void check_jump(){
 		in_air = 0;
 		extraJump = GIP;
 	}
-	
 }
 
 static void on_timer(int value){
