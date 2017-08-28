@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glut.h>
+#include <unistd.h>
+
 #define COUNT 200
 #define TIMER_ID 1
 
 #define TIMER_INTERVAL 20
 #define SPEED 0.4
-#define JUMPSPEED 0.5
+#define JUMPSPEED 0.3
 #define NUM_IMP 3
 #define COUNTIMP 7
 #define MAXREACH 15
@@ -37,10 +39,12 @@ static int check_right_air_imp();
 static int check_left_air_imp();
 static int check_left_green_imp();
 static void check_jump_green();
+static void draw_text(char* s);
 /*dekleracije globalnih promenljivih*/
 static int in_air = 0;
 static float y_coor = 0; /*y koordinata marija*/
 static float x_coor = 0; /* x koordinata marija*/
+static int ind = 1; /* indikator koji nam govori da li mozemo da se krecemo */
 static float speed=JUMPSPEED; /*brzina skoka*/
 static int on_imp[COUNTIMP]; /*niz koji pokazuje na kojoj prepreci stojimo  */
 static int on_imp2[COUNTIMP]; /*pomocni niz koji pomaze prilikom skoka sa prepreke */
@@ -107,16 +111,22 @@ static void on_keyboard(unsigned char key,int x,int y){
 		exit(0);
 	}
 	else if(key == ' '){
+		if(!ind)
+			return;
 		if(!in_air){
 			glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);
 			in_air=1;
 		}
 	}
 	else if (key == 'd' || key == 'D'){
+		if (!ind)
+			return;
 		check_right();
 		glutPostRedisplay();
 	}
 	else if (key == 'a' || key == 'A'){
+		if (!ind)
+			return;
 		check_left();
 		glutPostRedisplay();
 	}
@@ -152,18 +162,18 @@ static void on_display(){
         gluLookAt(0,1,50,0,0,0,0,1,0);
 	/* naredni uslovi proveravaju da li se nalazimo u rupi  */
 	if (x_coor >= 88.8 && x_coor <= 92.8 && y_coor == 0)
-		exit(EXIT_SUCCESS);
+		draw_text("   GAME OVER\n Press ESC to exit");
 	else if (x_coor >= 128.8 && x_coor <= 133.6 && y_coor == 0)
-		exit(EXIT_SUCCESS);
+		draw_text("   GAME OVER\n Press ESC to exit");
 	else if  (x_coor >= 143 && x_coor <= 145.9 && y_coor == 0)
-		exit(EXIT_SUCCESS);
+		draw_text("   GAME OVER\n Press ESC to exit");
 	else if (x_coor >= 161.9 && x_coor <= 163.9 && y_coor == 0)
-		exit(EXIT_SUCCESS);
+		draw_text("   GAME OVER\n Press ESC to exit");
 	else if (x_coor >= 213.59 && x_coor <= 253.9 && y_coor == 0)
-		exit(EXIT_SUCCESS);
+		draw_text("   GAME OVER\n Press ESC to exit");
 	/* naredni uslov proverava da li smo prosli sve prepreke */
 	if (x_coor >= 264 && y_coor == 0)
-		exit(EXIT_SUCCESS);
+		draw_text("   YOU WIN\n Press ESC to exit");
 
 	/* poziva se funkcija koja iscrtava marija*/
 	glPushMatrix();
@@ -388,7 +398,7 @@ static void check_right(){
 	
 
 	
-	x_coor += SPEED;
+	x_coor += SPEED + 0.1;
 }
 
 
@@ -478,7 +488,7 @@ static int check_right_air_imp(){
 	float currImp = 43.59;
 	float imp_height = 15.0;
 	if(x_coor >= currImp &&  x_coor < currImp + width && y_coor < imp_height && y_coor > height){
-		x_coor = currImp;
+		x_coor = currImp - 2;
 		return 1;
 	}
 	if (x_coor >= currImp + width + 0.2 && on_imp_air[0]){
@@ -491,7 +501,7 @@ static int check_right_air_imp(){
 	}
 	currImp = 74;
 	if(x_coor >= currImp &&  x_coor < currImp + 2*width && y_coor < imp_height && y_coor > height){
-		x_coor = currImp;
+		x_coor = currImp - 2;
 		return 1;
 	}
 	if (x_coor >= currImp + 2*width + 0.2 && on_imp_air[1]){
@@ -504,7 +514,7 @@ static int check_right_air_imp(){
 	}
 	currImp = 95.2;
 	if(x_coor >= currImp &&  x_coor < currImp + 2.35*width && y_coor < imp_height && y_coor > height){
-		x_coor = currImp;
+		x_coor = currImp - 2;
 		return 1;
 	}
 	if (x_coor >= currImp + 2.35*width + 0.2 && on_imp_air[2]){
@@ -517,7 +527,7 @@ static int check_right_air_imp(){
 	}
 	currImp = 149.2;
 	if(x_coor >= currImp &&  x_coor < currImp + width && y_coor < imp_height && y_coor > height){
-		x_coor = currImp;
+		x_coor = currImp - 2;
 		return 1;
 	}
 	if (x_coor >= currImp + width + 0.2 && on_imp_air[3]){
@@ -530,7 +540,7 @@ static int check_right_air_imp(){
 	}
 	currImp = 187.18;
 	if(x_coor >= currImp &&  x_coor < currImp + 2*width && y_coor < imp_height && y_coor > height){
-		x_coor = currImp;
+		x_coor = currImp - 2;
 		return 1;
 	}
 	if (x_coor >= currImp + 2*width  && on_imp_air[4]){
@@ -543,7 +553,7 @@ static int check_right_air_imp(){
 	}
 	currImp = 210.3;
 	if(x_coor >= currImp &&  x_coor < currImp + 6*width && y_coor < imp_height && y_coor > height){
-		x_coor = currImp;
+		x_coor = currImp - 2;
 		return 1;
 	}
 	if (x_coor >= currImp + 6*width && on_imp_air[5]){
@@ -563,7 +573,7 @@ static void check_left(){
 	if(check_left_air_imp())
 		return;
 	
-	x_coor -= SPEED;
+	x_coor -= SPEED + 0.1;
 }
 
 static int check_left_green_imp(){
@@ -660,7 +670,7 @@ static int check_left_air_imp(){
 	float currImp = 43.59;
 	float imp_height = 15.0;
 	if(x_coor > currImp &&  x_coor <= currImp + width && y_coor < imp_height && y_coor > height){
-		x_coor = currImp + width;
+		x_coor = currImp + width + 2;
 		return 1;
 	}
 	if (x_coor <= currImp && on_imp_air[0]){
@@ -673,7 +683,7 @@ static int check_left_air_imp(){
 	}
 	currImp = 74;
 	if(x_coor > currImp &&  x_coor <= currImp + 2*width && y_coor < imp_height && y_coor > height){
-		x_coor = currImp + 2*width;
+		x_coor = currImp + 2*width + 2;
 		return 1;
 	}
 	if (x_coor <= currImp && on_imp_air[1]){
@@ -686,7 +696,7 @@ static int check_left_air_imp(){
 	}
 	currImp = 95.2;
 	if(x_coor > currImp &&  x_coor <= currImp + 2.35*width && y_coor < imp_height && y_coor > height){
-		x_coor = currImp + 2.35*width;
+		x_coor = currImp + 2.35*width + 2;
 		return 1;
 	}
 	if (x_coor <= currImp && on_imp_air[2]){
@@ -699,7 +709,7 @@ static int check_left_air_imp(){
 	}
 	currImp = 149.2;
 	if(x_coor > currImp &&  x_coor <= currImp + width && y_coor < imp_height && y_coor > height){
-		x_coor = currImp + width;
+		x_coor = currImp + width + 2;
 		return 1;
 	}
 	if (x_coor <= currImp  && on_imp_air[3]){
@@ -712,7 +722,7 @@ static int check_left_air_imp(){
 	}
 	currImp = 187.18;
 	if(x_coor > currImp &&  x_coor <= currImp + 2*width && y_coor < imp_height && y_coor > height){
-		x_coor = currImp + 2*width;
+		x_coor = currImp + 2*width + 2;
 		return 1;
 	}
 	if (x_coor <= currImp  && on_imp_air[4]){
@@ -725,7 +735,7 @@ static int check_left_air_imp(){
 	}
 	currImp = 210.3;
 	if(x_coor > currImp &&  x_coor <= currImp + 6*width && y_coor < imp_height && y_coor > height){
-		x_coor = currImp + 6*width;
+		x_coor = currImp + 6*width + 2;
 		return 1;
 	}
 	if (x_coor <= currImp && on_imp_air[5]){
@@ -916,6 +926,19 @@ static void on_timer(int value){
 		if(in_air)
            		 glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 }        
+
+/* ispisuje poruku na ekran */
+
+static void draw_text(char* s){
+
+	glColor3f(1,0,0);
+ 	glRasterPos3f(-10, 5.7, -2.9);
+	glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, s);
+	ind = 0;
+
+
+}
+
 
 /* vraca tacno ako stojimo na nekoj prepreci */
 static int checkImp(){
